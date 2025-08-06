@@ -4,24 +4,28 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    openjdk-11-jdk \
+    openjdk-17-jdk \
     curl \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Set JAVA_HOME
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# Copy requirements first for better caching
+COPY requirements.txt* ./
 
 # Install Python dependencies
 RUN pip install --no-cache-dir \
     pyspark==3.5.0 \
     pandas \
-    requests
+    numpy
 
-# Copy scripts
-COPY scripts/ /app/scripts/
-COPY data/ /app/data/
+# Copy application code
+COPY scripts/ ./scripts/
 
-# Make scripts executable
-RUN chmod +x /app/scripts/*.py /app/scripts/*.sh
+# Create data directory
+RUN mkdir -p /app/data
 
+# Set the default command
 CMD ["tail", "-f", "/dev/null"]

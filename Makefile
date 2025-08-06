@@ -8,7 +8,7 @@ help:
 	@echo "🚀 DataFrame Tester - Available Commands"
 	@echo ""
 	@echo "Setup & Build:"
-	@echo "  make setup     - Complete environment setup (build + start + sample data)"
+	@echo "  make setup     - Complete environment setup (build + start)"
 	@echo "  make build     - Build Docker containers"
 	@echo "  make start     - Start all services"
 	@echo "  make stop      - Stop all services"
@@ -39,7 +39,7 @@ help:
 	@echo "  Spark UI: http://localhost:8080"
 
 # Setup commands
-setup: create-dirs create-sample-data build start wait-for-services
+setup: create-dirs build start wait-for-services
 	@echo "🎉 Setup complete!"
 	@echo ""
 	@$(MAKE) status
@@ -47,27 +47,6 @@ setup: create-dirs create-sample-data build start wait-for-services
 create-dirs:
 	@echo "📁 Creating directory structure..."
 	@mkdir -p data scripts jenkins
-
-create-sample-data:
-	@echo "📄 Creating sample CSV files..."
-	@cat > data/data1.csv << 'EOF'
-id,name,value,date
-1,Alice,100,2024-01-01
-2,Bob,200,2024-01-02
-3,Charlie,300,2024-01-03
-EOF
-	@cat > data/data2.csv << 'EOF'
-id,name,value,date
-1,Alice,100,2024-01-01
-2,Bob,200,2024-01-02
-3,Charlie,300,2024-01-03
-EOF
-	@cat > data/data3.csv << 'EOF'
-id,name,value,date
-1,Alice,150,2024-01-01
-2,Bob,200,2024-01-02
-3,Charlie,300,2024-01-03
-EOF
 
 # Docker commands
 build:

@@ -133,6 +133,76 @@ Once everything is running, you can access:
 - **Spark Master UI**: http://localhost:8080
 - **Jenkins**: http://localhost:8585
 
+## 🎯 Using Jenkins Pipeline (NEW!)
+
+The project now includes a Jenkins pipeline that allows you to execute DataFrame operations through a web interface. This is perfect for team collaboration and automated workflows.
+
+### 🚀 How to Use Jenkins Pipeline
+
+1. **Access Jenkins**: Go to http://localhost:8585
+2. **Find the Pipeline**: Look for your DataFrame processing pipeline job
+3. **Click "Build with Parameters"**: This opens the parameter form
+4. **Fill in the Parameters**:
+   - **FUNCTION**: Choose the operation (compare, profile, merge, etc.)
+   - **FILES**: List CSV files separated by commas (e.g., `data1.csv,data2.csv`)
+   - **ARGS**: Additional arguments if needed (e.g., column names for merge operations)
+
+### 📝 Jenkins Pipeline Parameters
+
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `FUNCTION` | The DataFrame operation to perform | `compare`, `profile`, `merge`, `list` |
+| `FILES` | CSV files to process (comma-separated) | `data1.csv,data2.csv` |
+| `ARGS` | Additional arguments for the function | `id` (for merge key) |
+
+### 💡 Jenkins Pipeline Examples
+
+#### Example 1: Compare Two Files
+- **FUNCTION**: `compare`
+- **FILES**: `data1.csv,data2.csv`
+- **ARGS**: (leave empty)
+
+#### Example 2: Profile a Single File
+- **FUNCTION**: `profile`
+- **FILES**: `data1.csv`
+- **ARGS**: (leave empty)
+
+#### Example 3: Merge Files on a Key
+- **FUNCTION**: `merge`
+- **FILES**: `data1.csv,data2.csv`
+- **ARGS**: `id`
+
+#### Example 4: List Available Functions
+- **FUNCTION**: `list`
+- **FILES**: (leave empty)
+- **ARGS**: (leave empty)
+
+### 🔍 Pipeline Features
+
+- **File Validation**: The pipeline checks that all specified CSV files exist before execution
+- **Error Handling**: Clear success/failure messages with detailed logging
+- **Command Preview**: Shows the exact command being executed
+- **Status Tracking**: Visual indicators (✅ success, ❌ failure) throughout execution
+
+### 🎭 Jenkins vs Make Commands
+
+You can use either Jenkins (web interface) or Make (command line) for the same operations:
+
+| Operation | Jenkins Parameters | Make Command |
+|-----------|-------------------|--------------|
+| Compare files | FUNCTION=`compare`, FILES=`data1.csv,data2.csv` | `make compare FILE1=data1.csv FILE2=data2.csv` |
+| Profile data | FUNCTION=`profile`, FILES=`data1.csv` | `make profile FILE=data1.csv` |
+| Merge files | FUNCTION=`merge`, FILES=`data1.csv,data2.csv`, ARGS=`id` | `make merge FILE1=data1.csv FILE2=data2.csv KEY=id` |
+| List functions | FUNCTION=`list` | `make list` |
+
+### 🔄 Jenkins Workflow Benefits
+
+- **Team Collaboration**: Non-technical team members can run operations through the web UI
+- **Audit Trail**: Jenkins keeps logs of all executions with timestamps
+- **Scheduled Jobs**: Can be configured to run automatically
+- **Parameter Validation**: Jenkins validates inputs before execution
+- **Integration Ready**: Easy to integrate with other CI/CD workflows
+
 ## 📁 Project Structure
 
 ```

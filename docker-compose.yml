@@ -2,9 +2,9 @@ version: '3.8'
 
 services:
   # Spark Master
-  spark-master:
+  tester-spark-master:
     image: bitnami/spark:3.5
-    container_name: spark-master
+    container_name: tester-spark-master
     environment:
       - SPARK_MODE=master
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
@@ -12,8 +12,8 @@ services:
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
     ports:
-      - "8080:8080"  # Spark Master Web UI
-      - "7077:7077"  # Spark Master port
+      - "8082:8080"  # Spark Master Web UI
+      - "7079:7077"  # Spark Master port
     volumes:
       - ./data:/opt/bitnami/spark/data  # HOST ./data/ -> CONTAINER /opt/bitnami/spark/data
       - ./scripts:/opt/bitnami/spark/scripts
@@ -21,29 +21,29 @@ services:
       - spark-net
 
   # Spark Worker
-  spark-worker:
+  tester-spark-worker:
     image: bitnami/spark:3.5
-    container_name: spark-worker
+    container_name: tester-spark-worker
     environment:
       - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - SPARK_WORKER_MEMORY=2g
-      - SPARK_WORKER_CORES=2
+      - SPARK_MASTER_URL=spark://tester-spark-master:7077
+      - SPARK_WORKER_MEMORY=4g
+      - SPARK_WORKER_CORES=4
     depends_on:
-      - spark-master
+      - tester-spark-master
     volumes:
       - ./data:/opt/bitnami/spark/data
     networks:
       - spark-net
 
   # Jenkins
-  jenkins:
+  tester-jenkins:
     image: jenkins/jenkins:lts
-    container_name: jenkins
+    container_name: tester-jenkins
     user: root
     ports:
-      - "8585:8080"
-      - "50000:50000"
+      - "8788:8080"
+      - "50001:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
@@ -68,7 +68,7 @@ services:
     environment:
       - SPARK_MASTER_URL=spark://spark-master:7077
     depends_on:
-      - spark-master
+      - tester-spark-master
     networks:
       - spark-net
     command: tail -f /dev/null  # Keep container running

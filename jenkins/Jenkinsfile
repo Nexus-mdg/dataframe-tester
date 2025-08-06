@@ -2,8 +2,13 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'FILE1', defaultValue: 'data1.csv', description: 'First CSV file name')
-        string(name: 'FILE2', defaultValue: 'data2.csv', description: 'Second CSV file name')
+        choice(
+            name: 'FUNCTION',
+            choices: ['compare', 'merge', 'profile', 'validate', 'aggregate'],
+            description: 'Function to execute'
+        )
+        string(name: 'FILES', defaultValue: 'data1.csv,data2.csv', description: 'Comma-separated CSV file names')
+        string(name: 'ARGS', defaultValue: '', description: 'Extra arguments (space-separated)')
     }
 
     stages {
@@ -42,41 +47,47 @@ pipeline {
                 script {
                     echo "📁 Checking if files exist..."
 
-                    def file1Check = sh(
-                        script: "docker exec python-runner test -f /app/data/${params.FILE1}",
-                        returnStatus: true
-                    )
-                    def file2Check = sh(
-                        script: "docker exec python-runner test -f /app/data/${params.FILE2}",
-                        returnStatus: true
-                    )
+                    def files = params.FILES.split(',').collect { it.trim() }
 
-                    if (file1Check != 0) {
-                        error("❌ File ${params.FILE1} not found in /app/data/")
-                    }
-                    if (file2Check != 0) {
-                        error("❌ File ${params.FILE2} not found in /app/data/")
+                    for (file in files) {
+                        def fileCheck = sh(
+                            script: "docker exec python-runner test -f /app/data/${file}",
+                            returnStatus: true
+                        )
+                        if (fileCheck != 0) {
+                            error("❌ File ${file} not found in /app/data/")
+                        }
                     }
 
-                    echo "✅ Both files exist"
+                    echo "✅ All files exist: ${files.join(', ')}"
                 }
             }
         }
 
-        stage('Compare DataFrames') {
+        stage('Execute Function') {
             steps {
                 script {
-                    echo "🔄 Running DataFrame comparison..."
+                    echo "🔄 Running ${params.FUNCTION} function..."
 
-                    def compareResult = sh(
-                        script: "docker exec python-runner python /app/scripts/compare_dataframes.py ${params.FILE1} ${params.FILE2}",
+                    def files = params.FILES.split(',').collect { it.trim() }.join(' ')
+                    def args = params.ARGS.trim()
+                    def command = "docker exec python-runner python /app/scripts/dataframe_processor.py ${params.FUNCTION} ${files}"
+
+                    if (args) {
+                        command += " ${args}"
+                    }
+
+                    echo "📋 Command: ${command}"
+
+                    def result = sh(
+                        script: command,
                         returnStatus: true
                     )
 
-                    if (compareResult == 0) {
-                        echo "✅ DataFrames are identical!"
+                    if (result == 0) {
+                        echo "✅ Function executed successfully!"
                     } else {
-                        error("❌ DataFrames differ or comparison failed")
+                        error("❌ Function execution failed")
                     }
                 }
             }
@@ -85,13 +96,13 @@ pipeline {
 
     post {
         success {
-            echo "🎉 Comparison completed successfully!"
+            echo "🎉 Function executed successfully!"
         }
         failure {
-            echo "❌ Comparison failed"
+            echo "❌ Function execution failed"
         }
         always {
-            echo "📋 Job completed for files: ${params.FILE1} vs ${params.FILE2}"
+            echo "📋 Job completed: ${params.FUNCTION} on files: ${params.FILES}"
         }
     }
 }
