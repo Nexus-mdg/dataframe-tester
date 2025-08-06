@@ -1,0 +1,97 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'FILE1', defaultValue: 'data1.csv', description: 'First CSV file name')
+        string(name: 'FILE2', defaultValue: 'data2.csv', description: 'Second CSV file name')
+    }
+
+    stages {
+        stage('Health Check') {
+            steps {
+                script {
+                    echo "🔍 Checking services..."
+
+                    // Check Spark Master
+                    def sparkCheck = sh(
+                        script: 'curl -s http://spark-master:8080 > /dev/null',
+                        returnStatus: true
+                    )
+                    if (sparkCheck == 0) {
+                        echo "✅ Spark Master is healthy"
+                    } else {
+                        error("❌ Spark Master is not accessible")
+                    }
+
+                    // Check Python Runner
+                    def pythonCheck = sh(
+                        script: 'docker exec python-runner python --version',
+                        returnStatus: true
+                    )
+                    if (pythonCheck == 0) {
+                        echo "✅ Python Runner is healthy"
+                    } else {
+                        error("❌ Python Runner is not accessible")
+                    }
+                }
+            }
+        }
+
+        stage('Validate Files') {
+            steps {
+                script {
+                    echo "📁 Checking if files exist..."
+
+                    def file1Check = sh(
+                        script: "docker exec python-runner test -f /app/data/${params.FILE1}",
+                        returnStatus: true
+                    )
+                    def file2Check = sh(
+                        script: "docker exec python-runner test -f /app/data/${params.FILE2}",
+                        returnStatus: true
+                    )
+
+                    if (file1Check != 0) {
+                        error("❌ File ${params.FILE1} not found in /app/data/")
+                    }
+                    if (file2Check != 0) {
+                        error("❌ File ${params.FILE2} not found in /app/data/")
+                    }
+
+                    echo "✅ Both files exist"
+                }
+            }
+        }
+
+        stage('Compare DataFrames') {
+            steps {
+                script {
+                    echo "🔄 Running DataFrame comparison..."
+
+                    def compareResult = sh(
+                        script: "docker exec python-runner python /app/scripts/compare_dataframes.py ${params.FILE1} ${params.FILE2}",
+                        returnStatus: true
+                    )
+
+                    if (compareResult == 0) {
+                        echo "✅ DataFrames are identical!"
+                    } else {
+                        error("❌ DataFrames differ or comparison failed")
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "🎉 Comparison completed successfully!"
+        }
+        failure {
+            echo "❌ Comparison failed"
+        }
+        always {
+            echo "📋 Job completed for files: ${params.FILE1} vs ${params.FILE2}"
+        }
+    }
+}

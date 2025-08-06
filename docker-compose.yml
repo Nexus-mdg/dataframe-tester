@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # Spark Master
+  spark-master:
+    image: bitnami/spark:3.5
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "8080:8080"  # Spark Master Web UI
+      - "7077:7077"  # Spark Master port
+    volumes:
+      - ./data:/opt/bitnami/spark/data  # HOST ./data/ -> CONTAINER /opt/bitnami/spark/data
+      - ./scripts:/opt/bitnami/spark/scripts
+    networks:
+      - spark-net
+
+  # Spark Worker
+  spark-worker:
+    image: bitnami/spark:3.5
+    container_name: spark-worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=2g
+      - SPARK_WORKER_CORES=2
+    depends_on:
+      - spark-master
+    volumes:
+      - ./data:/opt/bitnami/spark/data
+    networks:
+      - spark-net
+
+  # Jenkins
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    user: root
+    ports:
+      - "8585:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./jenkins:/var/jenkins_home/workspace/repo
+      - ./data:/workspace/data  # HOST ./data/ -> CONTAINER /workspace/data
+      - ./scripts:/workspace/scripts
+    environment:
+      - JENKINS_OPTS=--httpPort=8080
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    networks:
+      - spark-net
+
+  # Python Runner Service (for DataFrame comparison)
+  python-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: python-runner
+    volumes:
+      - ./data:/app/data        # HOST ./data/ -> CONTAINER /app/data
+      - ./scripts:/app/scripts  # HOST ./scripts/ -> CONTAINER /app/scripts
+    environment:
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+    networks:
+      - spark-net
+    command: tail -f /dev/null  # Keep container running
+
+networks:
+  spark-net:
+    driver: bridge
+
+volumes:
+  jenkins_home:
