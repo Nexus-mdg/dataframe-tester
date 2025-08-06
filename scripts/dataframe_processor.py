@@ -15,7 +15,7 @@ def create_spark_session():
     """Create SparkSession"""
     spark = SparkSession.builder \
         .appName("DataFrameProcessor") \
-        .master("spark://spark-master:7077") \
+        .master("spark://tester-spark-master:7077") \
         .config("spark.executor.memory", "1g") \
         .config("spark.driver.memory", "1g") \
         .getOrCreate()
