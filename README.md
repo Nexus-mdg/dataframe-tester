@@ -285,6 +285,27 @@ make setup       # Start fresh
 - Check with `make health`
 - Ensure ports 8080 and 8585 aren't used by other applications
 
+### Problem: SparkFileNotFoundException when processing CSV files
+**Solution**: This issue has been resolved in recent updates. The system now uses Spark in local mode to ensure proper file access within the containerized environment. If you encounter this error:
+1. Make sure you're using the latest version of the code
+2. Verify that your CSV files are in the `./data/` directory
+3. Run `make restart` to refresh all services
+
+## 🔧 Technical Details
+
+### Spark Configuration
+The DataFrame processor uses Apache Spark in **local mode** (`local[*]`) rather than distributed mode. This configuration:
+- ✅ Ensures reliable file access within Docker containers
+- ✅ Uses all available CPU cores for parallel processing  
+- ✅ Simplifies deployment and reduces complexity
+- ✅ Maintains high performance for typical data processing tasks
+
+### Architecture Overview
+- **Python Runner**: Executes DataFrame operations using PySpark
+- **Spark Master**: Provides cluster coordination (optional for monitoring)
+- **Spark Worker**: Provides additional compute capacity (optional)
+- **Jenkins**: Offers web-based pipeline execution and CI/CD integration
+
 ## 🔄 Migrating from setup.sh
 
 If you were using the old `setup.sh` script:
