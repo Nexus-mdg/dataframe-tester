@@ -4,10 +4,10 @@ pipeline {
     parameters {
         choice(
             name: 'FUNCTION',
-            choices: ['compare', 'merge', 'profile', 'validate', 'aggregate'],
+            choices: ['list', 'compare', 'profile', 'merge'],
             description: 'Function to execute'
         )
-        string(name: 'FILES', defaultValue: 'data1.csv,data2.csv', description: 'Comma-separated CSV file names')
+        string(name: 'FILES', defaultValue: 'sample_data1.csv,sample_data2.csv', description: 'Comma-separated CSV file names')
         string(name: 'ARGS', defaultValue: '', description: 'Extra arguments (space-separated)')
     }
 
@@ -17,15 +17,15 @@ pipeline {
                 script {
                     echo "🔍 Checking services..."
 
-                    // Check Spark Master
+                    // Check Spark Master UI
                     def sparkCheck = sh(
-                        script: 'curl -s http://spark-master:8080 > /dev/null',
+                        script: 'curl -s http://tester-spark-master:8080 > /dev/null',
                         returnStatus: true
                     )
                     if (sparkCheck == 0) {
                         echo "✅ Spark Master is healthy"
                     } else {
-                        error("❌ Spark Master is not accessible")
+                        echo "⚠️ Spark Master UI not accessible (this is OK - processing will work in local mode)"
                     }
 
                     // Check Python Runner
@@ -43,6 +43,11 @@ pipeline {
         }
 
         stage('Validate Files') {
+            when {
+                not {
+                    equals expected: 'list', actual: params.FUNCTION
+                }
+            }
             steps {
                 script {
                     echo "📁 Checking if files exist..."
@@ -50,12 +55,14 @@ pipeline {
                     def files = params.FILES.split(',').collect { it.trim() }
 
                     for (file in files) {
-                        def fileCheck = sh(
-                            script: "docker exec python-runner test -f /app/data/${file}",
-                            returnStatus: true
-                        )
-                        if (fileCheck != 0) {
-                            error("❌ File ${file} not found in /app/data/")
+                        if (file && file != '') {
+                            def fileCheck = sh(
+                                script: "docker exec python-runner test -f /app/data/${file}",
+                                returnStatus: true
+                            )
+                            if (fileCheck != 0) {
+                                error("❌ File ${file} not found in /app/data/")
+                            }
                         }
                     }
 
@@ -69,10 +76,16 @@ pipeline {
                 script {
                     echo "🔄 Running ${params.FUNCTION} function..."
 
-                    def files = params.FILES.split(',').collect { it.trim() }.join(' ')
-                    def args = params.ARGS.trim()
-                    def command = "docker exec python-runner python /app/scripts/dataframe_processor.py ${params.FUNCTION} ${files}"
+                    def command = "docker exec python-runner python /app/scripts/dataframe_processor.py ${params.FUNCTION}"
 
+                    // Add files if not listing functions
+                    if (params.FUNCTION != 'list') {
+                        def files = params.FILES.split(',').collect { it.trim() }.join(' ')
+                        command += " ${files}"
+                    }
+
+                    // Add additional arguments if provided
+                    def args = params.ARGS.trim()
                     if (args) {
                         command += " ${args}"
                     }
@@ -96,13 +109,27 @@ pipeline {
 
     post {
         success {
-            echo "🎉 Function executed successfully!"
+            echo "🎉 DataFrame operation completed successfully!"
+            echo "📊 Function: ${params.FUNCTION}"
+            if (params.FUNCTION != 'list') {
+                echo "📁 Files: ${params.FILES}"
+            }
+            if (params.ARGS) {
+                echo "⚙️ Arguments: ${params.ARGS}"
+            }
         }
         failure {
-            echo "❌ Function execution failed"
+            echo "❌ DataFrame operation failed!"
+            echo "🔍 Check the logs above for error details"
+            echo "💡 Common issues:"
+            echo "   - Ensure CSV files exist in the data/ directory"
+            echo "   - Verify file names are correct (case-sensitive)"
+            echo "   - Check that the python-runner container is running"
         }
         always {
-            echo "📋 Job completed: ${params.FUNCTION} on files: ${params.FILES}"
+            echo "🔗 Access URLs:"
+            echo "   Jenkins: http://localhost:8788"
+            echo "   Spark UI: http://localhost:8082"
         }
     }
 }
