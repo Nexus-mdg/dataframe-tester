@@ -29,7 +29,7 @@ def check_python_env():
 def check_data_files():
     """Check if sample data files exist"""
     import os
-    required_files = ['data1.csv', 'data2.csv']
+    required_files = ['sample_data1.csv', 'sample_data2.csv', 'sample_data3.csv']
     return all(os.path.exists(f'/app/data/{f}') for f in required_files)
 
 
@@ -53,15 +53,12 @@ def main():
                 print(f"❌ {name}: FAILED")
                 all_healthy = False
         except Exception as e:
-            print(f"❌ {name}: ERROR - {e}")
+            print(f"❌ {name}: ERROR - {str(e)}")
             all_healthy = False
 
-    if all_healthy:
-        print("🎉 All services are healthy!")
-        return 0
-    else:
-        print("⚠️  Some services are not healthy")
-        return 1
+    if __name__ == '__main__':
+        import sys
+        sys.exit(0 if all_healthy else 1)
 
 
 if __name__ == "__main__":

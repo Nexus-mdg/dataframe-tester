@@ -25,9 +25,9 @@ help:
 	@echo "  make test      - Run basic functionality tests"
 	@echo ""
 	@echo "DataFrame Operations:"
-	@echo "  make compare FILE1=data1.csv FILE2=data2.csv - Compare two DataFrames"
-	@echo "  make profile FILE=data1.csv                  - Profile a DataFrame"
-	@echo "  make merge FILE1=data1.csv FILE2=data2.csv KEY=id - Merge DataFrames"
+	@echo "  make compare FILE1=sample_data1.csv FILE2=sample_data2.csv - Compare two DataFrames"
+	@echo "  make profile FILE=sample_data1.csv                         - Profile a DataFrame"
+	@echo "  make merge FILE1=sample_data1.csv FILE2=sample_data2.csv KEY=id - Merge DataFrames"
 	@echo "  make list                                    - List available functions"
 	@echo ""
 	@echo "Cleanup:"
@@ -76,13 +76,8 @@ status:
 	@ls -la data/*.csv 2>/dev/null || echo "No CSV files found in data/ directory"
 
 health:
-	@echo "🔍 Checking service health..."
-	@echo "Spark Master:"
-	@curl -s http://localhost:8080 > /dev/null && echo "✅ Spark Master is running" || echo "❌ Spark Master is not responding"
-	@echo "Jenkins:"
-	@curl -s http://localhost:8585 > /dev/null && echo "✅ Jenkins is running" || echo "❌ Jenkins is not responding"
-	@echo "Python Runner:"
-	@docker exec python-runner python --version > /dev/null 2>&1 && echo "✅ Python Runner is ready" || echo "❌ Python Runner is not ready"
+	@echo "🔍 Running system health checks..."
+	@docker exec python-runner python /app/scripts/health_check.py || (echo "❌ Health checks failed" && exit 1)
 
 logs:
 	@docker-compose logs
@@ -101,16 +96,16 @@ test:
 	@docker exec python-runner python /app/scripts/dataframe_processor.py list
 	@echo ""
 	@echo "Testing profile command:"
-	@docker exec python-runner python /app/scripts/dataframe_processor.py profile data1.csv
+	@docker exec python-runner python /app/scripts/dataframe_processor.py profile sample_data1.csv
 	@echo ""
 	@echo "Testing compare command:"
-	@docker exec python-runner python /app/scripts/dataframe_processor.py compare data1.csv data2.csv
+	@docker exec python-runner python /app/scripts/dataframe_processor.py compare sample_data1.csv sample_data2.csv
 
 # DataFrame operations
 compare:
 	@if [ -z "$(FILE1)" ] || [ -z "$(FILE2)" ]; then \
 		echo "❌ Error: Please specify FILE1 and FILE2"; \
-		echo "Usage: make compare FILE1=data1.csv FILE2=data2.csv"; \
+		echo "Usage: make compare FILE1=sample_data1.csv FILE2=sample_data2.csv"; \
 		exit 1; \
 	fi
 	@echo "🔍 Comparing $(FILE1) and $(FILE2)..."
@@ -119,7 +114,7 @@ compare:
 profile:
 	@if [ -z "$(FILE)" ]; then \
 		echo "❌ Error: Please specify FILE"; \
-		echo "Usage: make profile FILE=data1.csv"; \
+		echo "Usage: make profile FILE=sample_data1.csv"; \
 		exit 1; \
 	fi
 	@echo "📊 Profiling $(FILE)..."
@@ -128,7 +123,7 @@ profile:
 merge:
 	@if [ -z "$(FILE1)" ] || [ -z "$(FILE2)" ] || [ -z "$(KEY)" ]; then \
 		echo "❌ Error: Please specify FILE1, FILE2, and KEY"; \
-		echo "Usage: make merge FILE1=data1.csv FILE2=data2.csv KEY=id"; \
+		echo "Usage: make merge FILE1=sample_data1.csv FILE2=sample_data2.csv KEY=id"; \
 		exit 1; \
 	fi
 	@echo "🔗 Merging $(FILE1) and $(FILE2) on key $(KEY)..."
