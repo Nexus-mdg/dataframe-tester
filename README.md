@@ -130,8 +130,8 @@ make clean-all   # Remove everything (containers, images, volumes)
 
 Once everything is running, you can access:
 
-- **Spark Master UI**: http://localhost:8080
-- **Jenkins**: http://localhost:8585
+- **Spark Master UI**: http://localhost:8082
+- **Jenkins**: http://localhost:8788
 
 ## 🎯 Using Jenkins Pipeline (NEW!)
 
@@ -139,7 +139,7 @@ The project now includes a Jenkins pipeline that allows you to execute DataFrame
 
 ### 🚀 How to Use Jenkins Pipeline
 
-1. **Access Jenkins**: Go to http://localhost:8585
+1. **Access Jenkins**: Go to http://localhost:8788
 2. **Find the Pipeline**: Look for your DataFrame processing pipeline job
 3. **Click "Build with Parameters"**: This opens the parameter form
 4. **Fill in the Parameters**:
@@ -283,7 +283,7 @@ make setup       # Start fresh
 **Solution**: 
 - Wait a bit longer (services take time to start)
 - Check with `make health`
-- Ensure ports 8080 and 8585 aren't used by other applications
+- Ensure ports 8082 and 8788 aren't used by other applications
 
 ### Problem: SparkFileNotFoundException when processing CSV files
 **Solution**: This issue has been resolved in recent updates. The system now uses Spark in local mode to ensure proper file access within the containerized environment. If you encounter this error:

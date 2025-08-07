@@ -35,8 +35,8 @@ help:
 	@echo "  make clean-all - Clean everything (containers, images, volumes)"
 	@echo ""
 	@echo "🔗 Access URLs:"
-	@echo "  Jenkins: http://localhost:8585"
-	@echo "  Spark UI: http://localhost:8080"
+	@echo "  Jenkins: http://localhost:8788"
+	@echo "  Spark UI: http://localhost:8082"
 
 # Setup commands
 setup: create-dirs build start wait-for-services
