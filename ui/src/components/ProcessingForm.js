@@ -23,7 +23,7 @@ const ProcessingForm = ({ selectedFunction, uploadedFiles, onProcess, processing
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('function_name', selectedFunction);
+    formData.append('function', selectedFunction);
 
     // Add selected files
     selectedFiles.forEach(fileName => {

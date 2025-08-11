@@ -32,7 +32,7 @@ const ResultsDisplay = ({ results, onDownload }) => {
       {/* Status */}
       <div className="flex items-center space-x-2">
         <div className="flex-shrink-0">
-          {results.status === 'success' ? (
+          {results.success ? (
             <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
@@ -42,8 +42,8 @@ const ResultsDisplay = ({ results, onDownload }) => {
             </svg>
           )}
         </div>
-        <span className={`font-medium ${results.status === 'success' ? 'text-green-800' : 'text-red-800'}`}>
-          {results.status === 'success' ? 'Processing completed successfully' : 'Processing failed'}
+        <span className={`font-medium ${results.success ? 'text-green-800' : 'text-red-800'}`}>
+          {results.success ? 'Processing completed successfully' : 'Processing failed'}
         </span>
       </div>
 
@@ -63,10 +63,10 @@ const ResultsDisplay = ({ results, onDownload }) => {
       )}
 
       {/* Summary */}
-      {results.summary && (
+      {results.message && (
         <div className="bg-blue-50 rounded-lg p-4">
-          <h3 className="font-medium text-blue-900 mb-2">Summary</h3>
-          <p className="text-sm text-blue-800">{results.summary}</p>
+          <h3 className="font-medium text-blue-900 mb-2">Message</h3>
+          <p className="text-sm text-blue-800">{results.message}</p>
         </div>
       )}
 
