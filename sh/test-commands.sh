@@ -231,7 +231,10 @@ test_report() {
 
     cd "$PROJECT_DIR"
 
-    REPORT_FILE="test_report_$(date +%Y%m%d_%H%M%S).txt"
+    # Ensure reports directory exists
+    mkdir -p reports
+
+    REPORT_FILE="reports/test_report_$(date +%Y%m%d_%H%M%S).txt"
 
     {
         echo "DataFrame Tester - Test Report"
