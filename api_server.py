@@ -8,6 +8,7 @@ import os
 import uuid
 import tempfile
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 import sys
@@ -26,6 +27,9 @@ from custom_functions import (
 )
 
 app = Flask(__name__)
+# Enable CORS for all routes to allow frontend to connect
+CORS(app)
+
 app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024  # 200MB max file size
 app.config['UPLOAD_FOLDER'] = '/app/data/uploads'
 app.config['OUTPUT_FOLDER'] = '/app/data/outputs'
@@ -76,17 +80,73 @@ def health_check():
 @app.route('/api/functions', methods=['GET'])
 def list_functions():
     """List available DataFrame processing functions"""
-    functions = {
-        'compare_dataframes': 'Compare two DataFrames for equality',
-        'merge_dataframes': 'Merge multiple DataFrames on a common key',
-        'profile_dataframe': 'Generate profile/summary statistics for DataFrames',
-        'validate_schema': 'Validate that all DataFrames have the same schema',
-        'aggregate_dataframe': 'Aggregate DataFrames with grouping and aggregation functions',
-        'detect_anomalies': 'Detect anomalies in numeric columns',
-        'data_quality_check': 'Perform comprehensive data quality checks',
-        'pivot_dataframe': 'Pivot DataFrames on specified columns',
-        'calculate_correlation': 'Calculate correlation matrix for numeric columns'
-    }
+    functions = [
+        {
+            'name': 'compare_dataframes',
+            'description': 'Compare two DataFrames for equality and differences',
+            'parameters': [
+                {'name': 'join_keys', 'type': 'string', 'required': False, 'description': 'Comma-separated list of columns to join on'},
+                {'name': 'comparison_type', 'type': 'select', 'required': False, 'description': 'Type of comparison to perform'}
+            ]
+        },
+        {
+            'name': 'merge_dataframes',
+            'description': 'Merge multiple DataFrames on a common key',
+            'parameters': [
+                {'name': 'join_keys', 'type': 'string', 'required': True, 'description': 'Comma-separated list of columns to join on'},
+                {'name': 'join_type', 'type': 'select', 'required': False, 'description': 'Type of join (inner, left, right, outer)'}
+            ]
+        },
+        {
+            'name': 'profile_dataframe',
+            'description': 'Generate profile/summary statistics for DataFrames',
+            'parameters': [
+                {'name': 'detailed', 'type': 'boolean', 'required': False, 'description': 'Include detailed statistics'}
+            ]
+        },
+        {
+            'name': 'validate_schema',
+            'description': 'Validate that all DataFrames have the same schema',
+            'parameters': []
+        },
+        {
+            'name': 'aggregate_dataframe',
+            'description': 'Aggregate DataFrames with grouping and aggregation functions',
+            'parameters': [
+                {'name': 'group_by', 'type': 'string', 'required': True, 'description': 'Comma-separated list of columns to group by'},
+                {'name': 'agg_functions', 'type': 'string', 'required': True, 'description': 'Comma-separated list of aggregation functions'}
+            ]
+        },
+        {
+            'name': 'detect_anomalies',
+            'description': 'Detect anomalies in numeric columns',
+            'parameters': [
+                {'name': 'method', 'type': 'select', 'required': False, 'description': 'Anomaly detection method'},
+                {'name': 'threshold', 'type': 'number', 'required': False, 'description': 'Detection threshold'}
+            ]
+        },
+        {
+            'name': 'data_quality_check',
+            'description': 'Perform comprehensive data quality checks',
+            'parameters': []
+        },
+        {
+            'name': 'pivot_dataframe',
+            'description': 'Pivot DataFrames on specified columns',
+            'parameters': [
+                {'name': 'index_col', 'type': 'string', 'required': True, 'description': 'Column to use as index'},
+                {'name': 'columns', 'type': 'string', 'required': True, 'description': 'Column to pivot on'},
+                {'name': 'values', 'type': 'string', 'required': True, 'description': 'Column containing values'}
+            ]
+        },
+        {
+            'name': 'calculate_correlation',
+            'description': 'Calculate correlation matrix for numeric columns',
+            'parameters': [
+                {'name': 'method', 'type': 'select', 'required': False, 'description': 'Correlation method (pearson, spearman, kendall)'}
+            ]
+        }
+    ]
     return jsonify({
         'success': True,
         'functions': functions

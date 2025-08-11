@@ -40,6 +40,21 @@ services:
       retries: 3
       start_period: 40s
 
+  # React UI Service (for web interface)
+  dataframe-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    container_name: dataframe-ui
+    ports:
+      - "3123:3000"             # HOST:3000 -> CONTAINER:3000
+    depends_on:
+      - dataframe-api
+    networks:
+      - spark-net
+    environment:
+      - REACT_APP_API_URL=http://localhost:8651
+
 networks:
   spark-net:
     driver: bridge
