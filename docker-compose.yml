@@ -36,23 +36,6 @@ services:
     networks:
       - spark-net
 
-  # Jenkins
-  tester-jenkins:
-    image: jenkins/jenkins:lts
-    container_name: tester-jenkins
-    user: root
-    ports:
-      - "8788:8080"
-      - "50001:50000"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./jenkins:/var/jenkins_home/workspace/repo
-      - ./data:/workspace/data  # HOST ./data/ -> CONTAINER /workspace/data
-    networks:
-      - spark-net
-
-
   # Python Runner Service (for DataFrame comparison)
   python-runner:
     build:
@@ -74,6 +57,3 @@ services:
 networks:
   spark-net:
     driver: bridge
-
-volumes:
-  jenkins_home:
