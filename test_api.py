@@ -9,7 +9,7 @@ import json
 import os
 import time
 
-API_BASE_URL = "http://localhost:5000"
+API_BASE_URL = "http://localhost:8651"
 DATA_DIR = "/home/toavina/PycharmProjects/dataframe-tester/data"
 
 def test_health_check():
