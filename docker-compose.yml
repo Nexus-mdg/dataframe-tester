@@ -16,6 +16,30 @@ services:
       - spark-net
     command: tail -f /dev/null  # Keep container running
 
+  # REST API Service (for DataFrame operations via HTTP)
+  dataframe-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: dataframe-api
+    ports:
+      - "5000:5000"             # HOST:5000 -> CONTAINER:5000
+    volumes:
+      - ./data:/app/data        # HOST ./data/ -> CONTAINER /app/data
+      - ./scripts:/app/scripts  # HOST ./scripts/ -> CONTAINER /app/scripts
+    environment:
+      - SPARK_MASTER_URL=spark://tester-spark-master:7077
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+    networks:
+      - spark-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
 networks:
   spark-net:
     driver: bridge
