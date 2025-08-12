@@ -1,5 +1,7 @@
 # DataFrame Tester 🚀
 
+![CI Status](https://github.com/Nexus-mdg/dataframe-tester/workflows/CI%20-%20DataFrame%20Tester/badge.svg)
+
 A containerized DataFrame comparison and processing environment using Spark and Python. This project provides an easy-to-use platform for comparing, profiling, and manipulating CSV data files using Apache Spark.
 
 ## AI Code Disclaimer
