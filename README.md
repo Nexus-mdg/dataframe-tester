@@ -2,6 +2,10 @@
 
 A containerized DataFrame comparison and processing environment using Spark and Python. This project provides an easy-to-use platform for comparing, profiling, and manipulating CSV data files using Apache Spark.
 
+## AI Code Disclaimer
+
+⚠️ **AI-Generated Content Notice**: Portions of this codebase have been generated or assisted by artificial intelligence tools. While these components have been reviewed and tested, users should exercise appropriate caution and conduct their own validation when using this software in production environments.
+
 ## 🎯 What This Project Does
 
 - **Compare DataFrames**: Find differences between CSV files
