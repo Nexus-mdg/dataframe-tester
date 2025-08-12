@@ -6,6 +6,8 @@ A containerized DataFrame comparison and processing environment using Spark and 
 
 ⚠️ **AI-Generated Content Notice**: Portions of this codebase have been generated or assisted by artificial intelligence tools. While these components have been reviewed and tested, users should exercise appropriate caution and conduct their own validation when using this software in production environments.
 
+🧪 **Testing Repository Notice**: This repository is intended for testing and experimental purposes only. It is not recommended for production use without thorough testing and validation in your specific environment.
+
 ## 🎯 What This Project Does
 
 - **Compare DataFrames**: Find differences between CSV files
