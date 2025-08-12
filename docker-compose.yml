@@ -7,6 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile.python
     container_name: python-runner
+    restart: unless-stopped
     volumes:
       - ./data:/app/data        # HOST ./data/ -> CONTAINER /app/data
       - ./scripts:/app/scripts  # HOST ./scripts/ -> CONTAINER /app/scripts
@@ -22,6 +23,7 @@ services:
       context: .
       dockerfile: Dockerfile.api
     container_name: dataframe-api
+    restart: unless-stopped
     ports:
       - "8651:5000"             # HOST:8651 -> CONTAINER:5000
     volumes:
@@ -46,6 +48,7 @@ services:
       context: .
       dockerfile: Dockerfile.ui
     container_name: dataframe-ui
+    restart: unless-stopped
     ports:
       - "3123:3000"             # HOST:3000 -> CONTAINER:3000
     depends_on:
