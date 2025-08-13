@@ -41,7 +41,7 @@ start_stack() {
 
     # Start Spark cluster first
     print_status "Starting Spark cluster..."
-    docker compose -f docker compose.spark.yml up -d
+    docker compose -f docker-compose.spark.yml up -d
 
     # Wait for Spark master to be ready
     print_status "Waiting for Spark master to be ready..."
@@ -70,7 +70,7 @@ stop_stack() {
 
     # Stop Spark cluster
     print_status "Stopping Spark cluster..."
-    docker compose -f docker compose.spark.yml down
+    docker compose -f docker-compose.spark.yml down
 
     print_success "Stack stopped successfully!"
 }
@@ -93,7 +93,7 @@ status_stack() {
     # Check if containers are running
     echo "Container Status:"
     docker compose ps
-    docker compose -f docker compose.spark.yml ps
+    docker compose -f docker-compose.spark.yml ps
 
     echo ""
     echo "Network Status:"
@@ -131,7 +131,7 @@ cleanup_stack() {
 
         # Stop and remove everything
         docker compose down -v --remove-orphans
-        docker compose -f docker compose.spark.yml down -v --remove-orphans
+        docker compose -f docker-compose.spark.yml down -v --remove-orphans
 
         # Remove network
         docker network rm dataframe-tester_spark-net 2>/dev/null || true
@@ -141,7 +141,7 @@ cleanup_stack() {
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             docker compose down --rmi all
-            docker compose -f docker compose.spark.yml down --rmi all
+            docker compose -f docker-compose.spark.yml down --rmi all
         fi
 
         print_success "Cleanup completed!"
