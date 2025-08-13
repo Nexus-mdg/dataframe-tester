@@ -20,16 +20,17 @@ jobs:
     - name: Install Make
       run: sudo apt-get update && sudo apt-get install -y make
 
+    - name: Start services
+      run: make start
+
+    - name: Wait for services to be ready
+      run: sleep 30
+
     - name: Run tests
       run: make test
 
     - name: Check service health
-      run: make health
+      run: make api-health
 
-    - name: Show logs on failure
-      if: failure()
-      run: make logs
-
-    - name: Cleanup
-      if: always()
-      run: make clean
+    - name: Stop services
+      run: make stop
