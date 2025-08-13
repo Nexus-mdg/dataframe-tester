@@ -243,7 +243,7 @@ test_report() {
         echo ""
 
         echo "Stack Status:"
-        docker-compose ps
+        docker compose ps
         echo ""
 
         echo "API Health Check:"
@@ -255,7 +255,7 @@ test_report() {
         echo ""
 
         echo "Recent Logs (last 20 lines):"
-        docker-compose logs --tail=20 dataframe-api
+        docker compose logs --tail=20 dataframe-api
 
     } > "$REPORT_FILE"
 

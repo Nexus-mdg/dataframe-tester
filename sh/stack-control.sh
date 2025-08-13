@@ -41,7 +41,7 @@ start_stack() {
 
     # Start Spark cluster first
     print_status "Starting Spark cluster..."
-    docker-compose -f docker-compose.spark.yml up -d
+    docker compose -f docker compose.spark.yml up -d
 
     # Wait for Spark master to be ready
     print_status "Waiting for Spark master to be ready..."
@@ -49,7 +49,7 @@ start_stack() {
 
     # Start main services
     print_status "Starting main services..."
-    docker-compose up -d
+    docker compose up -d
 
     print_success "Stack started successfully!"
     print_status "Services:"
@@ -66,11 +66,11 @@ stop_stack() {
 
     # Stop main services
     print_status "Stopping main services..."
-    docker-compose down
+    docker compose down
 
     # Stop Spark cluster
     print_status "Stopping Spark cluster..."
-    docker-compose -f docker-compose.spark.yml down
+    docker compose -f docker compose.spark.yml down
 
     print_success "Stack stopped successfully!"
 }
@@ -92,8 +92,8 @@ status_stack() {
 
     # Check if containers are running
     echo "Container Status:"
-    docker-compose ps
-    docker-compose -f docker-compose.spark.yml ps
+    docker compose ps
+    docker compose -f docker compose.spark.yml ps
 
     echo ""
     echo "Network Status:"
@@ -111,10 +111,10 @@ logs_stack() {
 
     if [ -z "$service" ]; then
         print_status "Showing logs for all services..."
-        docker-compose logs -f
+        docker compose logs -f
     else
         print_status "Showing logs for service: $service"
-        docker-compose logs -f "$service"
+        docker compose logs -f "$service"
     fi
 }
 
@@ -130,8 +130,8 @@ cleanup_stack() {
         cd "$PROJECT_DIR"
 
         # Stop and remove everything
-        docker-compose down -v --remove-orphans
-        docker-compose -f docker-compose.spark.yml down -v --remove-orphans
+        docker compose down -v --remove-orphans
+        docker compose -f docker compose.spark.yml down -v --remove-orphans
 
         # Remove network
         docker network rm dataframe-tester_spark-net 2>/dev/null || true
@@ -140,8 +140,8 @@ cleanup_stack() {
         read -p "Remove built images as well? (y/N): " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            docker-compose down --rmi all
-            docker-compose -f docker-compose.spark.yml down --rmi all
+            docker compose down --rmi all
+            docker compose -f docker compose.spark.yml down --rmi all
         fi
 
         print_success "Cleanup completed!"
@@ -157,7 +157,7 @@ build_stack() {
     cd "$PROJECT_DIR"
 
     # Build main services
-    docker-compose build --no-cache
+    docker compose build --no-cache
 
     print_success "Images built successfully!"
 }
